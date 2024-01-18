@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.12)
 
 # Project Name
 project(
-    CXXTemplate
+    mat
     VERSION 0.0.0
-    DESCRIPTION "A starting point for a new CMake-based C++ project."
-    LANGUAGES CXX
+    DESCRIPTION "Matrix Multiplication"
+    LANGUAGES CXX CUDA
 )
 
 # Set module search paths.
@@ -20,6 +20,9 @@ include(Tools)
 
 # Apply project defaults.
 include(Defaults)
+
+# Get dependencies.
+include(Packages)
 
 # Add targets.
 add_subdirectory(thirdparty)

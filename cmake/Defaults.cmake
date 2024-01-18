@@ -17,3 +17,7 @@ if(BUILD_DOCUMENTATION)
             exampleSharedLibrary
     )
 endif()
+
+if (BUILD_PYTHON_BINDINGS)
+    find_package(Python COMPONENTS Development Interpreter)
+endif()

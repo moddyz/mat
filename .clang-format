@@ -40,7 +40,3 @@ SpacesInCStyleCastParentheses: true
 SpacesInParentheses: true
 SpacesInSquareBrackets: true
 Standard: Cpp11
-
-# clang-11
-# AlignConsecutiveMacros: true
-# AlignEscapedNewLines: Right
