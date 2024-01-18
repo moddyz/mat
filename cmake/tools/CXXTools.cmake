@@ -164,9 +164,16 @@ function(
             ${args_LIBRARIES}
     )
 
+    # Mirror intermediate artifacts deployment structure to installation structure.
+    add_custom_command(
+        TARGET ${LIBRARY_NAME}
+        POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:${LIBRARY_NAME}> ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}>
+    )
+
     # Setup SOVERSION & VERSION properties to create
     # NAMELINK, SONAME, and actual library with full version suffix.
-    set_target_properties(${NAME}
+    set_target_properties(${LIBRARY_NAME}
         PROPERTIES
             SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR}
             VERSION ${CMAKE_PROJECT_VERSION}

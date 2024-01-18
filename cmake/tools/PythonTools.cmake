@@ -1,5 +1,7 @@
 include(CXXTools)
 
+set(PYTHON_LIB_DIR "pylib")
+
 # Builds a pybind11-based C++ python module.
 #
 # pybind11 will need to be made available as an imported library.
@@ -61,8 +63,54 @@ function(
     # Install the built library.
     install(
         TARGETS ${TARGET_NAME}
-        LIBRARY DESTINATION pylib
-        ARCHIVE DESTINATION pylib
+        LIBRARY DESTINATION ${PYTHON_LIB_DIR}
+        ARCHIVE DESTINATION ${PYTHON_LIB_DIR}
     )
 
 endfunction() # cpp_library
+
+# Adds a python file that is executed as a test.
+function(python_test TARGET_NAME PYTHON_FILE)
+
+    if (NOT BUILD_PYTHON_BINDINGS)
+        message(STATUS "Skipping python tests.")
+        return()
+    endif()
+
+    # Can we find the python executable
+    if (NOT ${Python_Interpreter_FOUND})
+        message(STATUS "Project is not configured with ${Python_EXECUTABLE}")
+        return()
+    endif()
+
+    # Add a new test target.
+    add_test(
+        NAME ${TARGET_NAME}
+        COMMAND ${Python_EXECUTABLE} -m pytest ${PYTHON_FILE}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+
+    # Set-up runtime environment variables for the test.
+    set(TEST_ENV_VARS "")
+    set(TEST_PYTHON_PATH "$ENV{PYTHONPATH}")
+    if (MSVC)
+        string(REGEX REPLACE "\\\\" "/" TEST_PYTHON_PATH "${TEST_PYTHON_PATH}")
+    endif()
+    string(PREPEND TEST_PYTHON_PATH "PYTHONPATH=")
+    string(PREPEND TEST_PYTHON_PATH "\\;")
+    list(APPEND TEST_PYTHON_PATH
+        "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/${PYTHON_LIB_DIR}"
+    )
+
+    list(APPEND TEST_ENV_VARS "${TEST_PYTHON_PATH}")
+
+    #message(FATAL_ERROR ${TEST_ENV_VARS})
+
+    # Set the
+    set_tests_properties(${TARGET_NAME}
+        PROPERTIES
+            ENVIRONMENT
+            "${TEST_ENV_VARS}"
+    )
+
+endfunction()

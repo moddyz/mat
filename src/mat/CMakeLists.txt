@@ -14,3 +14,5 @@ pybind11_module(mat
     LIBRARIES
         mat
 )
+
+python_test(test_matrix test_matrix.py)

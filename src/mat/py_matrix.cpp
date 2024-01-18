@@ -11,7 +11,7 @@ void bind_Matrix( pybind11::module& module )
     pybind11::class_< MatrixT > cls( module, "Matrix" );
 
     cls.def( pybind11::init< size_t, size_t >() );
-
+    cls.def( "shape", &MatrixT::shape );
     cls.def( "__repr__",
              []( const MatrixT& m )
              {
