@@ -4,6 +4,8 @@
 #include <tuple>
 #include <vector>
 
+#include <mat/type_name.h>
+
 namespace mat
 {
 
@@ -48,7 +50,7 @@ public:
         matrix_type matrix( dim, dim );
         for ( size_t idx = 0; idx < dim; ++idx )
         {
-            matrix[ idx, idx ] = 1.0;
+            matrix( idx, idx ) = 1.0;
         }
         return matrix;
     }
@@ -125,6 +127,35 @@ public:
     DataT& operator()( size_t idx )
     {
         return _elements[ idx ];
+    }
+
+    //-------------------------------------------------------------------------
+    /// \name Serialization
+    //-------------------------------------------------------------------------
+
+    std::string to_str() const
+    {
+        std::stringstream ss;
+        ss << "Matrix< " << std::string( type_name< data_type >() ).c_str() << " >(";
+        for ( size_t row_idx = 0; row_idx < num_rows(); ++row_idx )
+        {
+            ss << "\n    ";
+            for ( size_t col_idx = 0; col_idx < num_cols(); ++col_idx )
+            {
+                ss << _elements[ row_idx * num_cols() + col_idx ];
+                if ( col_idx + 1 < num_cols() )
+                {
+                    ss << ", ";
+                }
+            }
+
+            if ( row_idx + 1 < num_rows() )
+            {
+                ss << ",";
+            }
+        }
+        ss << "\n)";
+        return ss.str();
     }
 
 private:

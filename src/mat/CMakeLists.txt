@@ -3,6 +3,7 @@ cpp_shared_library(mat
         matrix.cpp
     PUBLIC_HEADERS
         matrix.h
+        type_name.h
 )
 
 pybind11_module(mat

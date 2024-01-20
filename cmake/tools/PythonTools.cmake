@@ -118,7 +118,7 @@ function(python_test TARGET_NAME PYTHON_FILE)
     # Add a new test target.
     add_test(
         NAME ${TARGET_NAME}
-        COMMAND ${Python_EXECUTABLE} -m pytest -s ${PYTHON_FILE}
+        COMMAND ${Python_EXECUTABLE} -m pytest -s -vv ${PYTHON_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
