@@ -2,6 +2,27 @@ include(CXXTools)
 
 set(PYTHON_LIB_DIR "pylib")
 
+# Specifies that this project needs a particular python module.
+# Will raise a FATAL_ERROR if the module cannot be imported.
+function(
+    require_python_import
+    MODULE_NAME
+)
+
+    execute_process(
+        COMMAND ${Python_EXECUTABLE} -c "import ${MODULE_NAME}"
+        RESULT_VARIABLE PYTHON_RESULT
+        OUTPUT_VARIABLE PYTHON_STDOUT
+        ERROR_VARIABLE PYTHON_STDERR
+    )
+
+
+    if (NOT PYTHON_RESULT EQUAL 0)
+        message(FATAL_ERROR ${PYTHON_STDOUT} ${PYTHON_STDERR} "Please make sure the ${MODULE_NAME} python module is installed on your system.\n")
+    endif()
+
+endfunction()
+
 # Builds a pybind11-based C++ python module.
 #
 # pybind11 will need to be made available as an imported library.
@@ -60,6 +81,14 @@ function(
             OUTPUT_NAME ${MODULE_NAME}
     )
 
+    # Mirror installation structure under binary tree to make it easier to setup the runtime environments for tests.
+    add_custom_command(
+        TARGET ${TARGET_NAME}
+        POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${PYTHON_LIB_DIR}
+            COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:${TARGET_NAME}> ${PROJECT_BINARY_DIR}/${PYTHON_LIB_DIR}/$<TARGET_FILE_NAME:${TARGET_NAME}>
+    )
+
     # Install the built library.
     install(
         TARGETS ${TARGET_NAME}
@@ -83,10 +112,13 @@ function(python_test TARGET_NAME PYTHON_FILE)
         return()
     endif()
 
+    # Make sure pytest is importable.
+    require_python_import("pytest")
+
     # Add a new test target.
     add_test(
         NAME ${TARGET_NAME}
-        COMMAND ${Python_EXECUTABLE} -m pytest ${PYTHON_FILE}
+        COMMAND ${Python_EXECUTABLE} -m pytest -s ${PYTHON_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
@@ -97,14 +129,12 @@ function(python_test TARGET_NAME PYTHON_FILE)
         string(REGEX REPLACE "\\\\" "/" TEST_PYTHON_PATH "${TEST_PYTHON_PATH}")
     endif()
     string(PREPEND TEST_PYTHON_PATH "PYTHONPATH=")
-    string(PREPEND TEST_PYTHON_PATH "\\;")
     list(APPEND TEST_PYTHON_PATH
-        "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/${PYTHON_LIB_DIR}"
+        "${PROJECT_BINARY_DIR}/${PYTHON_LIB_DIR}"
     )
 
     list(APPEND TEST_ENV_VARS "${TEST_PYTHON_PATH}")
-
-    #message(FATAL_ERROR ${TEST_ENV_VARS})
+    list(JOIN TEST_ENV_VARS ":" TEST_ENV_VARS)
 
     # Set the
     set_tests_properties(${TARGET_NAME}

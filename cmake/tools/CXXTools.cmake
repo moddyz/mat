@@ -168,7 +168,8 @@ function(
     add_custom_command(
         TARGET ${LIBRARY_NAME}
         POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:${LIBRARY_NAME}> ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}>
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
+            COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:${LIBRARY_NAME}> ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}>
     )
 
     # Setup SOVERSION & VERSION properties to create
